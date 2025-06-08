@@ -50,7 +50,7 @@ router.post('/register', async (req,res)=>{
         res.cookie('token',token,{httpOnly:true});
         await newUser.save();
 
-        return res.render("register",{errMsg:null,successMsg: "Accont Create Successfully."});
+        return res.render("profile",{errMsg:null, successMsg:null,user:newUser});
     }
     catch(err){
         console.log(err.message);
@@ -78,7 +78,7 @@ router.post('/login',async (req,res)=>{
         // If matched, generate token
         const token = jwt.sign({userId:user._id, email:user.email}, process.env.JWT_SECRET);
         res.cookie('token',token);
-        return res.redirect('/profile');
+        return res.redirect('/user/profile');
     }catch(err){
         console.log(err.message);
         return res.status(500).render('login', { errMsg: "Internal Server Error", successMsg: null });
@@ -102,11 +102,59 @@ const isLoggedIn = (req, res, next)=>{
     }
 }
 
-router.get('/profile',isLoggedIn,(req,res)=>{
+// Profile
+router.get('/profile',isLoggedIn,async (req,res)=>{
+    console.log("From Loin**************")
     console.log(req.user);
-    res.render("profile");
+    let user = await userModel.findOne({email:req.user.email}).populate("posts");
+    console.log("Populated user:", JSON.stringify(user, null, 2));
+    res.render("profile",{errMsg:null, successMsg:null,user});
 });
 
+// Create Post
+router.post('/post', isLoggedIn, async (req, res)=>{
+    try{
+
+        const user = await userModel.findOne({email:req.user.email});
+        const {content} = req.body;
+        
+        // Log the content to verify it's received
+        console.log("Post content:", content);
+
+        if (!content || content.trim() === "") {
+            const updatedUser = await userModel.findOne({ email: req.user.email }).populate("posts");
+            return res.render("profile", {
+                errMsg: "Post content cannot be empty",
+                successMsg: null,
+                user: updatedUser
+            });
+        }
+        
+        const post = await postModel.create({
+            user: user._id,
+            content
+        });
+        
+        user.posts.push(post._id);
+        await user.save();
+        // Re-fetch the user with populated posts
+        const updatedUser = await userModel.findOne({ email: req.user.email }).populate("posts");
+        res.render("profile",{errMsg:null, successMsg:"Post created successfully", user:updatedUser})
+    }catch(err){
+        console.log(err.message);
+        const updatedUser = await userModel.findOne({ email: req.user.email }).populate("posts");
+        res.render("profile", {
+            errMsg: err.message,
+            successMsg: null,
+            user: updatedUser
+        });
+        
+    }
+
+    
+});
+
+// Hash Password
 const securePass = async (password)=> {
     const salt = await bcrypt.genSalt(10);
     return await bcrypt.hash(password,salt);

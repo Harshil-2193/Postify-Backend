@@ -1,16 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <title>Login</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="w-full min-h-screen bg-zinc-900 text-white flex justify-center items-center">
-        <div class="text-center w-[500px] ">
-            <h1 class="text-3xl mb-5">Profile</h1>
-        </div>
+<body class="bg-zinc-900 text-white min-h-screen flex items-center justify-center px-4">
+
+  <div class="w-full max-w-2xl bg-zinc-800 rounded-xl shadow-lg p-6 space-y-6">
+    
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+      <h1 class="text-2xl font-semibold">👤 Profile</h1>
+      <a href="/user/logout" class="bg-red-500 hover:bg-red-600 transition text-sm px-4 py-2 rounded-md">Logout</a>
     </div>
+
+    <!-- Error Handling -->
+    <% if (errMsg) { %>
+      <div class="bg-red-500/10 text-red-400 border border-red-500 px-4 py-2 rounded mb-5 text-sm text-center">
+        <%= errMsg %>
+      </div>
+    <% } %>
+    <% if (successMsg) { %>
+      <div class="bg-green-500/10 text-green-400 border border-green-500 px-4 py-2 rounded mb-4 text-sm text-center">
+        <%= successMsg %>
+      </div>
+    <% } %>
+
+    <!-- User Info -->
+    <div class="text-center space-y-2">
+      <h2 class="text-xl font-bold"><%= user.name %></h2>
+      <p class="text-zinc-400">You can create a new post</p>
+    </div>
+
+    <!-- Post Form -->
+    <form action="/user/post" method="post" class="space-y-4">
+      <textarea 
+        name="content"
+        rows="4"
+        placeholder="What's on your mind?"
+        class="w-full bg-zinc-700 border border-zinc-600 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+      ></textarea>
+      <input 
+        type="submit"
+        value="Create New Post"
+        class="w-full sm:w-40 bg-blue-500 hover:bg-blue-600 transition text-white py-2 rounded-md text-sm cursor-pointer"
+      />
+    </form>
+
+    <!-- Posts Section -->
+    <div class="mt-10 space-y-4">
+      <h2 class="text-zinc-400 text-lg font-medium border-b border-zinc-600 pb-2">📝 Your Posts</h2>
+      
+      <% user.posts.forEach(function (post) { if (!post) return; // skip null posts%>
+        <div class="bg-zinc-700 p-4 rounded-md border border-zinc-600 space-y-3">
+        <h3 class="text-blue-400 font-medium">@<%= user.username%> </h3>
+        <p class="text-sm leading-relaxed"><%= post.content %></p>
+        <div class="flex gap-4 text-sm">
+          <a href="#" class="text-blue-400 hover:underline">Like</a>
+          <a href="#" class="text-zinc-400 hov  er:underline">Edit</a>
+        </div>
+      </div>
+      <% }) %>
+
+      
+    </div>
+  </div>
+
 </body>
 </html>
