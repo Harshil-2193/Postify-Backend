@@ -116,9 +116,6 @@ router.post('/post', isLoggedIn, async (req, res)=>{
 
         const user = await userModel.findOne({email:req.user.email});
         const {content} = req.body;
-        
-        // Log the content to verify it's received
-        console.log("Post content:", content);
 
         if (!content || content.trim() === "") {
             const updatedUser = await userModel.findOne({ email: req.user.email }).populate("posts");
@@ -207,21 +204,22 @@ router.get('/upload-profile', isLoggedIn, async (req, res)=>{
     res.render("uploadProfile", {user:req.user});
 });
 
-
 // Add Profile Photo
 router.post('/upload-profile',isLoggedIn, upload.single('profileImage') , async (req, res)=>{
+  try {
+    if (!req.file) {
+      return res.redirect('/user/profile?errMsg=No file selected for upload.');
+    }
 
-    try{
-        console.log('Uploaded file:', req.file);
-        await userModel.findByIdAndUpdate(req.user.userId, {
-            profileImage: req.file.filename
-        });
-        res.redirect('/user/profile?successMSg=Profile Photo added Successfully.');
-    }
-    catch(err){
-        console.log(err.message);
-        res.redirect('/user/profile?errMsg="Profile Photo not uploaded.');
-    }
+    await userModel.findByIdAndUpdate(req.user.userId, {
+      profileImage: req.file.filename
+    });
+
+    res.redirect('/user/profile?successMsg=Profile photo uploaded successfully.');
+  } catch (err) {
+    console.error('Error uploading profile photo:', err.message);
+    res.redirect('/user/profile?errMsg=Failed to upload profile photo.');
+  }
 });
 
 // Hash Password
@@ -229,7 +227,5 @@ const securePass = async (password)=> {
     const salt = await bcrypt.genSalt(10);
     return await bcrypt.hash(password,salt);
 }
-
-
 
 module.exports = router;
