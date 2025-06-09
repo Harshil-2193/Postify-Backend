@@ -31,6 +31,22 @@
     <!-- User Info -->
     <div class="text-center space-y-2">
       <h2 class="text-xl font-bold"><%= user.name %></h2>
+
+      <!-- Profile Photo -->
+      <div class="flex justify-center">
+        <% if (user.profileImage && user.profileImage !== '') { %>
+          <img src="/IMAGES/uploads/<%= user.profileImage %>" alt="Profile" class="w-16 h-16 rounded-full object-cover" />
+        <% } else { %>
+          <div class="w-16 h-16 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-xl">
+            <%= user.name.charAt(0).toUpperCase() %>
+          </div>
+        <% } %>
+      </div>
+      <!-- Update Profile Photo -->
+      <a href="/user/upload-profile" class="text-xs text-blue-400 hover:underline hover:text-blue-300 transition">
+          Update Profile Photo
+      </a>
+
       <p class="text-zinc-400">You can create a new post</p>
     </div>
 

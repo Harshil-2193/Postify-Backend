@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const userModel = require('../models/user');
 const postModel = require('../models/post');
 const jwt = require('jsonwebtoken');
+const upload = require("./multureConfig");
 
 router.get('/', (req,res)=>{
     res.render("register",{errMsg:null,successMsg:null});  
@@ -200,11 +201,35 @@ router.post('/update/:id', isLoggedIn, async(req,res)=>{
     res.render('profile', { errMsg: 'Failed to update the post.', user: req.user, successMsg: null });
   }
 });
+
+// Take Profile Phtoto
+router.get('/upload-profile', isLoggedIn, async (req, res)=>{
+    res.render("uploadProfile", {user:req.user});
+});
+
+
+// Add Profile Photo
+router.post('/upload-profile',isLoggedIn, upload.single('profileImage') , async (req, res)=>{
+
+    try{
+        console.log('Uploaded file:', req.file);
+        await userModel.findByIdAndUpdate(req.user.userId, {
+            profileImage: req.file.filename
+        });
+        res.redirect('/user/profile?successMSg=Profile Photo added Successfully.');
+    }
+    catch(err){
+        console.log(err.message);
+        res.redirect('/user/profile?errMsg="Profile Photo not uploaded.');
+    }
+});
+
 // Hash Password
 const securePass = async (password)=> {
     const salt = await bcrypt.genSalt(10);
     return await bcrypt.hash(password,salt);
 }
+
 
 
 module.exports = router;
