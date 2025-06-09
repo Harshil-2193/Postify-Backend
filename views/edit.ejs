@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Edit Post</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-zinc-900 text-white min-h-screen flex items-center justify-center px-4">
+
+  <div class="w-full max-w-xl bg-zinc-800 rounded-2xl shadow-2xl p-8 space-y-6">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-2">
+      <h1 class="text-xl font-semibold text-white">Edit Your Post</h1>
+      <div class="space-x-2">
+        <a href="/user/profile" class="text-sm text-zinc-400 hover:text-blue-400 transition">← Back</a>
+        <a href="/user/logout" class="bg-red-500 hover:bg-red-600 transition text-sm px-4 py-2 rounded-md">Logout</a>
+      </div>
+    </div>
+
+    <!-- Error/Success Messages -->
+    <% if (errMsg) { %>
+      <div class="bg-red-500/10 text-red-400 border border-red-500 px-4 py-2 rounded text-sm text-center">
+        <%= errMsg %>
+      </div>
+    <% } %>
+    <% if (successMsg) { %>
+      <div class="bg-green-500/10 text-green-400 border border-green-500 px-4 py-2 rounded text-sm text-center">
+        <%= successMsg %>
+      </div>
+    <% } %>
+
+    <!-- Form -->
+    <form action="/user/update/<%= post._id%>" method="post" class="space-y-4">
+      <label for="content" class="block text-sm text-zinc-300 mb-1">Post Content</label>
+      <textarea 
+        name="content"
+        id="content"
+        rows="5"
+        placeholder="What's on your mind?"
+        class="w-full bg-zinc-700 border border-zinc-600 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+      ><%= post.content %></textarea>
+
+      <input 
+        type="submit"
+        value="Update Post"
+        class="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 transition text-white px-6 py-2 rounded-md text-sm cursor-pointer"
+      />
+    </form>
+
+  </div>
+
+</body>
+</html>

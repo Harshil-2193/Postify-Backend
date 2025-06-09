@@ -106,7 +106,7 @@ const isLoggedIn = (req, res, next)=>{
 router.get('/profile',isLoggedIn,async (req,res)=>{
     console.log(req.user);
     let user = await userModel.findOne({email:req.user.email}).populate("posts");
-    res.render("profile",{errMsg:null, successMsg:null,user});
+    res.render("profile",{errMsg:req.query.errMsg||null, successMsg:req.query.successMsg||null,user});
 });
 
 // Create Post
@@ -175,8 +175,31 @@ router.get('/like/:id', isLoggedIn, async (req,res)=>{
 });
 
 // Edit Post
+router.get('/edit/:id',isLoggedIn, async (req,res)=>{
+    try{
+        const post = await postModel.findOne({_id:req.params.id}).populate('user');
+        console.log(post);
+        res.render('edit',{post, errMsg: req.query.errMsg || null, successMsg: req.query.successMsg || null });
+    }catch(err){
+        console.log(err.message);
+        res.redirect('/user/profile?errMsg= Something went wrong')
+    }
+    
+});
 
+// Update Post
+router.post('/update/:id', isLoggedIn, async(req,res)=>{
+    try {
+    await postModel.findByIdAndUpdate(req.params.id, {
+      content: req.body.content
+    });
 
+    res.redirect('/user/profile'); 
+  } catch (err) {
+    console.error('Update failed:', err);
+    res.render('profile', { errMsg: 'Failed to update the post.', user: req.user, successMsg: null });
+  }
+});
 // Hash Password
 const securePass = async (password)=> {
     const salt = await bcrypt.genSalt(10);
