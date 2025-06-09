@@ -104,10 +104,8 @@ const isLoggedIn = (req, res, next)=>{
 
 // Profile
 router.get('/profile',isLoggedIn,async (req,res)=>{
-    console.log("From Loin**************")
     console.log(req.user);
     let user = await userModel.findOne({email:req.user.email}).populate("posts");
-    console.log("Populated user:", JSON.stringify(user, null, 2));
     res.render("profile",{errMsg:null, successMsg:null,user});
 });
 
@@ -153,6 +151,31 @@ router.post('/post', isLoggedIn, async (req, res)=>{
 
     
 });
+
+
+// Like Post
+router.get('/like/:id', isLoggedIn, async (req,res)=>{
+   console.log(`Received request for /like/${req.params.id}`);
+    try {
+        const post = await postModel.findOne({ _id: req.params.id }).populate('user');
+
+        // Like And Unlike
+        if(post.likes.indexOf(req.user.userId) === -1)
+            post.likes.push(req.user.userId)
+        else
+            post.likes.splice(post.likes.indexOf(req.user.userId),1)
+
+
+        await post.save();
+        res.redirect("/user/profile");
+    } catch (err) {
+        console.error("Error fetching post:", err);
+        res.status(500).send("Server error");
+    }
+});
+
+// Edit Post
+
 
 // Hash Password
 const securePass = async (password)=> {

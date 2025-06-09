@@ -57,9 +57,14 @@
         <div class="bg-zinc-700 p-4 rounded-md border border-zinc-600 space-y-3">
         <h3 class="text-blue-400 font-medium">@<%= user.username%> </h3>
         <p class="text-sm leading-relaxed"><%= post.content %></p>
+        <span class="text-xs text-zinc-400 inline-block mb-1">
+          <%= post.likes.length %> <%= post.likes.length === 1 ? 'Like' : 'Likes' %>
+        </span>
         <div class="flex gap-4 text-sm">
-          <a href="#" class="text-blue-400 hover:underline">Like</a>
-          <a href="#" class="text-zinc-400 hov  er:underline">Edit</a>
+          <a href="/user/like/<%= post._id %>" class="text-blue-400 hover:underline">
+            <%= post.likes.indexOf(user._id) === -1 ? "Like": "Unlike" %>  <!-- User is loged in user to the profile page.-->
+          </a>
+          <a href="/user/edit/<%= post._id%>" class="text-zinc-400 hover:underline">Edit</a>
         </div>
       </div>
       <% }) %>
